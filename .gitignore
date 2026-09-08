@@ -1,0 +1,29 @@
+# --- .NET ------------------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+artifacts/
+
+# --- Test and coverage output ----------------------------------------------
+[Tt]est[Rr]esult*/
+*.coverage
+*.coveragexml
+
+# --- Local development -----------------------------------------------------
+# FileMailer writes .eml here when Mail:PickupDirectory points at it. These are
+# real composed messages and can carry whatever a form was filled in with.
+pickup/
+*.eml
+
+# --- Secrets ---------------------------------------------------------------
+# Nothing in this repository needs a token. The Postmark server token is read
+# from the consuming deployment's own configuration on its own box, so a token
+# appearing here is a mistake rather than a file to be ignored.
+appsettings.Production.json
+*.env
+
+# --- Not ignored, deliberately ---------------------------------------------
+# packages.lock.json IS committed. RestorePackagesWithLockFile is on and CI
+# restores locked, so the lock file is what makes a restore reproducible.

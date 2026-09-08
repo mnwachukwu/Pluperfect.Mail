@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Pluperfect.Mail/Pluperfect.Mail.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Pluperfect.Mail.Tests/Pluperfect.Mail.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,25 @@
+<Project>
+
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+
+    <!--
+      A test assembly has no consumers, so it has no public surface to document.
+      Turned off explicitly rather than by a condition on the file above, which
+      would be evaluated before this file sets IsTestProject.
+    -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+
+    <!--
+      CA1707 forbids underscores in member names. That is a rule for library
+      surface area, not for test names: Method_does_thing_when_condition reads
+      far better in a failure report than MethodDoesThingWhenCondition. Off
+      here only; it stays on for everything in src/.
+    -->
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
+  </PropertyGroup>
+
+</Project>

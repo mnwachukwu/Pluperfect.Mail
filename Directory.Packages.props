@@ -1,0 +1,55 @@
+<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <!--
+    This library targets net10.0, so the Microsoft.Extensions.* line tracks 10.0.x. There is no
+    second version line here: unlike PokeStory.Site, nothing in this repository is held back by a
+    provider that has not shipped for the current major.
+  -->
+  <PropertyGroup>
+    <ExtensionsVersion>10.0.0</ExtensionsVersion>
+  </PropertyGroup>
+
+  <ItemGroup Label="Hosting and options">
+    <!-- A class library gets none of this from a shared framework the way an ASP.NET Core app
+         does, so each one is a real reference rather than an NU1510 error. -->
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(ExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(ExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="$(ExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(ExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="$(ExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="$(ExtensionsVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Label="Message composition">
+    <!--
+      MimeKit only, without MailKit. MailKit is the SMTP client, and this library has no SMTP
+      path at all - application mail goes to Postmark over HTTPS. MimeKit is here purely to
+      compose the .eml that FileMailer writes in development.
+
+      Pinned to 4.17.0 deliberately: 4.14.0 carries GHSA-g7hc-96xr-gvvx, and with the NuGet audit
+      plus warnings-as-errors that is a build failure rather than something shipped. Same pin as
+      PokeStory.Site.
+    -->
+    <PackageVersion Include="MimeKit" Version="4.17.0" />
+  </ItemGroup>
+
+  <!--
+    Shouldly rather than FluentAssertions: FluentAssertions 8 moved to a paid licence for
+    commercial use. Matches the choice already made in PokeStory.Site.
+  -->
+  <ItemGroup Label="Testing">
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="NUnit" Version="4.4.0" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="5.1.0" />
+    <PackageVersion Include="NUnit.Analyzers" Version="4.11.0" />
+    <PackageVersion Include="NSubstitute" Version="5.3.0" />
+    <PackageVersion Include="Shouldly" Version="4.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(ExtensionsVersion)" />
+  </ItemGroup>
+
+</Project>
