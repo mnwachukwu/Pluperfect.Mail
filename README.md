@@ -1,6 +1,8 @@
 # Pluperfect.Mail
 
-How every Studio TM14 service sends mail. One interface, two transports, and no SMTP anywhere.
+[![Build and test](https://github.com/mnwachukwu/Pluperfect.Mail/actions/workflows/ci.yml/badge.svg)](https://github.com/mnwachukwu/Pluperfect.Mail/actions/workflows/ci.yml)
+
+How every Pluperfect Development service sends mail. One interface, two transports, and no SMTP anywhere.
 
 | | |
 |---|---|
@@ -83,23 +85,56 @@ judged by rules that were never meant for it.
 
 ## Consuming it
 
-By project reference to a sibling checkout, the same way `TM14.Networking` is consumed:
+By project reference to a **sibling** checkout. One relative path has to resolve both on a
+development machine and on a runner, which it does as long as both places have the same shape:
 
-```xml
-<ProjectReference Include="..\..\..\Pluperfect.Mail\src\Pluperfect.Mail\Pluperfect.Mail.csproj" />
+```
+<parent>/
+├── Pluperfect.Mail/          ← this repository
+└── <the consuming repository>/
 ```
 
-In CI, check this repository out alongside:
+⚠ **The number of `..` differs per project**, because consuming projects sit at different depths.
+Getting it wrong resolves to a path inside the consuming repository, where nothing exists. The
+verified lines:
+
+| Consuming project | Depth | `ProjectReference Include` |
+|---|---|---|
+| `Studio TM14 Site/Server/Pluperfect.Api` | 3 | `..\..\..\Pluperfect.Mail\src\Pluperfect.Mail\Pluperfect.Mail.csproj` |
+| `Courtney.Care/Server/Courtney.Care.Api` | 3 | `..\..\..\Pluperfect.Mail\src\Pluperfect.Mail\Pluperfect.Mail.csproj` |
+| `PokéStory/Site/Server/src/PokeStory.Api` | 5 | `..\..\..\..\..\Pluperfect.Mail\src\Pluperfect.Mail\Pluperfect.Mail.csproj` |
+
+Count from the directory holding the consuming `.csproj` up to the directory holding both
+repositories, then append `Pluperfect.Mail\src\Pluperfect.Mail\Pluperfect.Mail.csproj`.
+
+Locally that needs nothing else configured: both repositories are already side by side, so the
+`..` walk up to the parent and back down.
+
+In CI the consuming repository must check **itself** out into a subdirectory so that this one lands
+beside it rather than inside it, and every subsequent step names that directory:
 
 ```yaml
-- uses: actions/checkout@v7
+- uses: actions/checkout@v5
+  with:
+    path: Studio-TM14-Site
+
+- uses: actions/checkout@v5
   with:
     repository: mnwachukwu/Pluperfect.Mail
     path: Pluperfect.Mail
+
+# ...then every step that builds:
+#   defaults:
+#     run:
+#       working-directory: Studio-TM14-Site
 ```
 
-Unpinned, so every consumer builds against the current library. That is what you want while several
-repositories are adopting it at once; add `ref:` to a workflow when a consumer needs to stop moving.
+⚠ The sibling directory must be named `Pluperfect.Mail`, because that name is inside the relative
+path. The consuming repository's own directory name is free — only its depth matters.
+
+Unpinned, so every consumer builds against the current default branch. That is what you want while
+several repositories are adopting it at once; add `ref:` to a workflow when a consumer needs to stop
+moving.
 
 ## Building
 

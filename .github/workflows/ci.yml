@@ -1,0 +1,71 @@
+# Pluperfect.Mail
+#
+# A library, not a deployable. There is no publish step and no artifact: consumers
+# take it by project reference to a sibling checkout, so what CI protects is the
+# code itself rather than a build somebody has to install.
+#
+# ⚠ CONSUMERS BUILD AGAINST WHATEVER IS ON THE DEFAULT BRANCH.
+#
+# The checkouts in the consuming repositories name no `ref:`, so a commit here is
+# in every consumer's next build. That makes a green run on this repository the
+# only thing standing between a change and five other services. Hence: every
+# branch, every pull request, no exceptions and nothing skipped.
+#
+# workflow_dispatch runs the same thing on demand, which makes it a rehearsal
+# before opening a pull request.
+
+name: Build and test
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# ⚠ THE ACTION MAJORS BELOW ARE NOT UNIFORM, AND THAT IS DELIBERATE.
+#
+# GitHub deprecated Node 20 on the runners, so every action has to be on a major
+# that declares `runs.using: node24`. The version at which each one crossed over
+# is different, and they look like typos side by side:
+#
+#   checkout       v5    (v4 is node20)
+#   setup-dotnet   v5    (v4 is node20)
+#
+# So "bump everything to the same number" reintroduces the warning somewhere.
+# Before changing any of these, check what the tag actually declares:
+#
+#   curl -s https://raw.githubusercontent.com/actions/checkout/v5/action.yml | grep using:
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # global.json pins the SDK feature band, so the runner compiles with the
+      # same one a developer does. Without this the runner picks whatever it has
+      # preinstalled and an analyzer difference shows up as a mystery failure.
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      # --locked-mode fails rather than silently resolving a different version
+      # than the one that was tested. It is also the check that a lock file was
+      # committed alongside a dependency change: an out-of-date packages.lock.json
+      # fails here rather than drifting until somebody notices.
+      - run: dotnet restore --locked-mode
+
+      # Warnings are errors in Directory.Build.props, so this step is also the
+      # analyzer gate. That is where CA1848 and the nullable checks bite.
+      - run: dotnet build -c Release --no-restore
+
+      # No filter. Every test here runs offline against composed .eml files and
+      # an in-memory container; nothing needs a network, a container or a
+      # credential, which is deliberate and worth keeping true.
+      - run: dotnet test -c Release --no-build
