@@ -9,6 +9,15 @@ How every Pluperfect Development service sends mail. One interface, two transpor
 | `src/Pluperfect.Mail` | The library. `net10.0`, consumed by project reference. |
 | `tests/Pluperfect.Mail.Tests` | NUnit, asserting against composed messages rather than mocks. |
 
+## Scope
+
+Infrastructure for one small fleet of sites, public because keeping it private cost more than it
+was worth. It is deliberately narrow and lives on no registry.
+
+You are welcome to read it, copy from it, or lift whatever is useful. One honest caveat: it changes
+when those sites need it to rather than on any schedule, so pin a commit or fork it if you come to
+depend on it. Questions are welcome, though answers may take a while.
+
 ## The shape
 
 ```csharp
@@ -73,15 +82,6 @@ Postmark is reached over HTTPS. There is no SMTP credential to leak, no assumpti
 open outbound 587, and a refusal comes back as a specific error code rather than as a numeric reply
 to be parsed out of a string. `MimeKit` is present only to compose the `.eml` that `FileMailer`
 writes; `MailKit` is deliberately absent.
-
-## Deliberate omissions
-
-No attachments, no templating, no batching, no scheduling. Nothing in this fleet sends mail that
-needs them, and each is easy to add later and impossible to remove once a caller depends on it.
-
-`MessageStream` is pinned to `outbound`, Postmark's transactional stream. Postmark applies different
-suppression rules to broadcast streams, and a transactional message judged by broadcast rules is
-judged by rules that were never meant for it.
 
 ## Consuming it
 
@@ -148,3 +148,15 @@ dotnet test
 
 Warnings are errors, code style is enforced in the build, and restores are locked. A `packages.lock.json`
 that changes is a dependency that moved, and it is committed so that shows up in review.
+## Deliberate omissions
+
+No attachments, no templating, no batching, no scheduling. Nothing in this fleet sends mail that
+needs them, and each is easy to add later and impossible to remove once a caller depends on it.
+
+`MessageStream` is pinned to `outbound`, Postmark's transactional stream. Postmark applies different
+suppression rules to broadcast streams, and a transactional message judged by broadcast rules is
+judged by rules that were never meant for it.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
