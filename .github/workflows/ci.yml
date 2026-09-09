@@ -65,7 +65,10 @@ jobs:
       # analyzer gate. That is where CA1848 and the nullable checks bite.
       - run: dotnet build -c Release --no-restore
 
-      # No filter. Every test here runs offline against composed .eml files and
-      # an in-memory container; nothing needs a network, a container or a
-      # credential, which is deliberate and worth keeping true.
-      - run: dotnet test -c Release --no-build
+      # Everything except [Category("Live")] runs offline against composed .eml
+      # files and an in-memory container — no network, no container, no
+      # credential. The Live tests need a real Postmark server token, which CI
+      # deliberately does not have: a repository secret is reachable by every
+      # workflow run and everyone who can approve one, and CI has no reason to
+      # send mail. They are run by hand when Postmark's contract needs checking.
+      - run: dotnet test -c Release --no-build --filter 'TestCategory!=Live'
