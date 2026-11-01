@@ -252,7 +252,8 @@
           "Microsoft.Extensions.Options": "[10.0.0, )",
           "Microsoft.Extensions.Options.ConfigurationExtensions": "[10.0.0, )",
           "Microsoft.Extensions.Options.DataAnnotations": "[10.0.0, )",
-          "MimeKit": "[4.17.0, )"
+          "MimeKit": "[4.17.0, )",
+          "System.Security.Cryptography.Pkcs": "[10.0.13, )"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
