@@ -157,6 +157,32 @@ needs them, and each is easy to add later and impossible to remove once a caller
 suppression rules to broadcast streams, and a transactional message judged by broadcast rules is
 judged by rules that were never meant for it.
 
-## License
+## Licenses
 
-MIT. See [LICENSE](LICENSE).
+Pluperfect.Mail is MIT-licensed; see [LICENSE](LICENSE). It takes in the packages below directly, each under its own
+license. The packages those bring in carry licenses of their own.
+
+### The library (`src/Pluperfect.Mail`)
+
+| Package | Used for | License |
+|---|---|---|
+| [Microsoft.Extensions.DependencyInjection.Abstractions](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection.Abstractions) | Registering the mailer | [MIT](https://spdx.org/licenses/MIT.html) |
+| [Microsoft.Extensions.Http](https://www.nuget.org/packages/Microsoft.Extensions.Http) | The HTTP client that calls Postmark | [MIT](https://spdx.org/licenses/MIT.html) |
+| [Microsoft.Extensions.Logging.Abstractions](https://www.nuget.org/packages/Microsoft.Extensions.Logging.Abstractions) | Logging | [MIT](https://spdx.org/licenses/MIT.html) |
+| [Microsoft.Extensions.Options](https://www.nuget.org/packages/Microsoft.Extensions.Options) | Its settings | [MIT](https://spdx.org/licenses/MIT.html) |
+| [Microsoft.Extensions.Options.ConfigurationExtensions](https://www.nuget.org/packages/Microsoft.Extensions.Options.ConfigurationExtensions) | Reading its settings from configuration | [MIT](https://spdx.org/licenses/MIT.html) |
+| [Microsoft.Extensions.Options.DataAnnotations](https://www.nuget.org/packages/Microsoft.Extensions.Options.DataAnnotations) | Checking its settings at start | [MIT](https://spdx.org/licenses/MIT.html) |
+| [MimeKit](https://www.nuget.org/packages/MimeKit) | Writing mail as `.eml` files to the pickup folder | [MIT](https://spdx.org/licenses/MIT.html) |
+| [System.Security.Cryptography.Pkcs](https://www.nuget.org/packages/System.Security.Cryptography.Pkcs) | Not used directly: raises MimeKit's version past two advisories | [MIT](https://spdx.org/licenses/MIT.html) |
+
+### The tests (`tests/Pluperfect.Mail.Tests`)
+
+| Package | Used for | License |
+|---|---|---|
+| [Microsoft.NET.Test.Sdk](https://www.nuget.org/packages/Microsoft.NET.Test.Sdk) | Running the tests | [MIT](https://spdx.org/licenses/MIT.html) |
+| [NUnit](https://www.nuget.org/packages/NUnit) | The test framework | [MIT](https://spdx.org/licenses/MIT.html) |
+| [NUnit3TestAdapter](https://www.nuget.org/packages/NUnit3TestAdapter) | Running NUnit tests through `dotnet test` | [MIT](https://spdx.org/licenses/MIT.html) |
+| [NUnit.Analyzers](https://www.nuget.org/packages/NUnit.Analyzers) | Catching test mistakes at build time | [MIT](https://spdx.org/licenses/MIT.html) |
+| [NSubstitute](https://www.nuget.org/packages/NSubstitute) | Stand-ins for the services a test does not exercise | [BSD-3-Clause](https://spdx.org/licenses/BSD-3-Clause.html) |
+| [Shouldly](https://www.nuget.org/packages/Shouldly) | Assertions | [BSD-3-Clause](https://spdx.org/licenses/BSD-3-Clause.html) |
+| [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection) | Building the services a test registers | [MIT](https://spdx.org/licenses/MIT.html) |
