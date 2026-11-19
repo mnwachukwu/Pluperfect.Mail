@@ -32,6 +32,12 @@ public sealed class PluperfectMailOptions
     public string? PickupDirectory { get; set; }
 
     /// <summary>
+    /// Mailpit's address, such as <c>http://localhost:8025</c>. When set, and no pickup directory is, messages go to
+    /// Mailpit, which keeps them for reading on its own page and delivers nothing.
+    /// </summary>
+    public string? MailpitUrl { get; set; }
+
+    /// <summary>
     /// The Postmark <em>server</em> token this application sends with.
     /// </summary>
     /// <remarks>
@@ -76,15 +82,30 @@ public sealed class PluperfectMailOptionsValidator : IValidateOptions<Pluperfect
         ArgumentNullException.ThrowIfNull(options);
 
         var hasPickup = !string.IsNullOrWhiteSpace(options.PickupDirectory);
+        var hasMailpit = !string.IsNullOrWhiteSpace(options.MailpitUrl);
         var hasToken = !string.IsNullOrWhiteSpace(options.ServerToken);
 
-        if (!hasPickup && !hasToken)
+        if (!hasPickup && !hasMailpit && !hasToken)
+        {
+            return ValidateOptionsResult.Fail(ServiceCollectionExtensions.NoTransport);
+        }
+
+        if (hasMailpit && !IsWebAddress(options.MailpitUrl!))
         {
             return ValidateOptionsResult.Fail(
-                "Mail has no transport. Set Mail:ServerToken to send through Postmark, or "
-                + "Mail:PickupDirectory to write messages to disk instead.");
+                "Mail:MailpitUrl must be an http or https address, such as http://localhost:8025.");
         }
 
         return ValidateOptionsResult.Success;
+    }
+
+    /// <summary>Whether <paramref name="value"/> is an absolute http or https address.</summary>
+    /// <param name="value">The address to check.</param>
+    /// <returns>True for an absolute http or https address.</returns>
+    public static bool IsWebAddress(string value)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+        return Uri.TryCreate(value.Trim(), UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
     }
 }

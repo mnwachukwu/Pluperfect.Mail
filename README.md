@@ -2,7 +2,7 @@
 
 [![Build and test](https://github.com/mnwachukwu/Pluperfect.Mail/actions/workflows/ci.yml/badge.svg)](https://github.com/mnwachukwu/Pluperfect.Mail/actions/workflows/ci.yml)
 
-How every Pluperfect Development service sends mail. One interface, two transports, and no SMTP anywhere.
+How every Pluperfect Development service sends mail. One interface, three transports, and no SMTP anywhere.
 
 | | |
 |---|---|
@@ -48,16 +48,17 @@ the addresses it corresponds with; this library reads only the keys below.
 | Key | |
 |---|---|
 | `Mail:PickupDirectory` | When set, messages are written here as `.eml` and nothing is delivered |
-| `Mail:ServerToken` | The Postmark **server** token. Required unless the pickup directory is set |
-| `Mail:TimeoutSeconds` | How long to wait on Postmark. Defaults to 10 |
+| `Mail:MailpitUrl` | Mailpit's address, such as `http://localhost:8025`. Messages go to Mailpit, which keeps them for reading and delivers nothing |
+| `Mail:ServerToken` | The Postmark **server** token. Required unless the pickup directory or Mailpit is set |
+| `Mail:TimeoutSeconds` | How long to wait on Postmark or Mailpit. Defaults to 10 |
 
 ```csharp
 builder.Services.AddPluperfectMail(builder.Configuration);
 ```
 
-The transport is chosen once, at registration. `PickupDirectory` wins if it is set; otherwise a
-server token is required. A configuration with neither fails at startup, where systemd reports it,
-rather than on the first visitor who submits a form.
+The transport is chosen once, at registration. `PickupDirectory` wins if it is set, then
+`MailpitUrl`; otherwise a server token is required. A configuration with none of them fails at
+startup, where systemd reports it, rather than on the first visitor who submits a form.
 
 ### Where the token lives
 
@@ -76,12 +77,23 @@ client and readable exactly as the recipient would see it. No network, no creden
 mailing a stranger from a laptop. That is the same composition a real transport puts on the wire, so
 a header that would be wrong in production is wrong in the file too.
 
+Or set `Mail:MailpitUrl` and run [Mailpit](https://mailpit.axllent.org/), which shows every message on
+its own page, at `http://localhost:8025` by default, with links that work. `MailpitMailer` hands each
+message to Mailpit's HTTP Send API, `POST /api/v1/send`, and Mailpit delivers nothing.
+
 ## Why there is no SMTP
 
-Postmark is reached over HTTPS. There is no SMTP credential to leak, no assumption that a host can
-open outbound 587, and a refusal comes back as a specific error code rather than as a numeric reply
-to be parsed out of a string. `MimeKit` is present only to compose the `.eml` that `FileMailer`
-writes; `MailKit` is deliberately absent.
+Postmark is reached over HTTPS, and Mailpit over its HTTP API. There is no SMTP credential to leak,
+no assumption that a host can open outbound 587, and a refusal comes back as a specific error rather
+than as a numeric reply to be parsed out of a string. `MimeKit` is present only to compose the `.eml`
+that `FileMailer` writes; `MailKit` is deliberately absent.
+
+`MailpitLiveTests` sends a message to a running Mailpit and finds it there. Like the Postmark live
+tests it is excluded from CI, and it runs once `MAILPIT_URL` names a Mailpit:
+
+```powershell
+$env:MAILPIT_URL = "http://localhost:8025"; dotnet test --filter TestCategory=Live
+```
 
 ## Consuming it
 
